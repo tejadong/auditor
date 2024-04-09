@@ -17,6 +17,8 @@ class Entry
 
     protected string $object_id;
 
+    protected bool $read;
+
     protected ?string $discriminator;
 
     protected ?string $transaction_hash;
@@ -60,6 +62,14 @@ class Entry
     public function getObjectId(): string
     {
         return $this->object_id;
+    }
+
+    /**
+     * Get the value of read.
+     */
+    public function getRead(): bool
+    {
+        return $this->read;
     }
 
     /**

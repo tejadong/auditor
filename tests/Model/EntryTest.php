@@ -24,6 +24,7 @@ final class EntryTest extends TestCase
             'id' => 1,
             'type' => 'type',
             'object_id' => '1',
+            'read' => false,
             'diffs' => '{}',
             'blame_id' => 1,
             'blame_user' => 'John Doe',

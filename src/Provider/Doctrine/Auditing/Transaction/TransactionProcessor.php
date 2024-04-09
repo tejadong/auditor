@@ -219,6 +219,7 @@ class TransactionProcessor implements TransactionProcessorInterface
             'table' => $auditTable,
             'type' => $data['action'],
             'object_id' => (string) $data['id'],
+            'read' => (bool) $data['read'],
             'discriminator' => $data['discriminator'],
             'transaction_hash' => (string) $data['transaction_hash'],
             'diffs' => json_encode($diff, JSON_THROW_ON_ERROR),

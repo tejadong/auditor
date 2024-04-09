@@ -109,6 +109,7 @@ class DoctrineProvider extends AbstractProvider
         $fields = [
             'type' => ':type',
             'object_id' => ':object_id',
+            'read' => ':read',
             'discriminator' => ':discriminator',
             'transaction_hash' => ':transaction_hash',
             'diffs' => ':diffs',

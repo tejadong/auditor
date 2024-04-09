@@ -65,7 +65,7 @@ class DoctrineSubscriber implements EventSubscriber
             return;
         }
 
-        trigger_deprecation('damienharper/auditor', '2.2', 'SQLLogger is deprecated. Use DHMiddleware instead');
+        trigger_deprecation('tejadong/auditor', '2.2', 'SQLLogger is deprecated. Use DHMiddleware instead');
 
         // extend the SQL logger
         $currentLogger = $entityManager->getConnection()->getConfiguration()->getSQLLogger();

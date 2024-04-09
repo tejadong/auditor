@@ -1,14 +1,14 @@
-# auditor [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=auditor,%20the%20missing%20audit%20log%20library.&url=https://github.com/DamienHarper/auditor&hashtags=auditor)
+# auditor [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=auditor,%20the%20missing%20audit%20log%20library.&url=https://github.com/tejadong/auditor&hashtags=auditor)
 
-[![Latest Stable Version](https://poser.pugx.org/damienharper/auditor/v/stable)](https://packagist.org/packages/damienharper/auditor)
-[![Latest Unstable Version](https://poser.pugx.org/damienharper/auditor/v/unstable)](https://packagist.org/packages/damienharper/auditor)
-[![auditor 2.x CI](https://github.com/DamienHarper/auditor/actions/workflows/ci-2.x.yml/badge.svg)](https://github.com/DamienHarper/auditor/actions/workflows/ci-2.x.yml)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DamienHarper/auditor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/DamienHarper/auditor/?branch=master)
-[![codecov](https://codecov.io/gh/DamienHarper/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DamienHarper/auditor/branch/master)
-[![License](https://poser.pugx.org/damienharper/auditor/license)](https://packagist.org/packages/damienharper/auditor)
-[![Total Downloads](https://poser.pugx.org/damienharper/auditor/downloads)](https://packagist.org/packages/damienharper/auditor)
-[![Monthly Downloads](https://poser.pugx.org/damienharper/auditor/d/monthly)](https://packagist.org/packages/damienharper/auditor)
-[![Daily Downloads](https://poser.pugx.org/damienharper/auditor/d/daily)](https://packagist.org/packages/damienharper/auditor)
+[![Latest Stable Version](https://poser.pugx.org/tejadong/auditor/v/stable)](https://packagist.org/packages/tejadong/auditor)
+[![Latest Unstable Version](https://poser.pugx.org/tejadong/auditor/v/unstable)](https://packagist.org/packages/tejadong/auditor)
+[![auditor 2.x CI](https://github.com/tejadong/auditor/actions/workflows/ci-2.x.yml/badge.svg)](https://github.com/tejadong/auditor/actions/workflows/ci-2.x.yml)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tejadong/auditor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tejadong/auditor/?branch=master)
+[![codecov](https://codecov.io/gh/tejadong/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/tejadong/auditor/branch/master)
+[![License](https://poser.pugx.org/tejadong/auditor/license)](https://packagist.org/packages/tejadong/auditor)
+[![Total Downloads](https://poser.pugx.org/tejadong/auditor/downloads)](https://packagist.org/packages/tejadong/auditor)
+[![Monthly Downloads](https://poser.pugx.org/tejadong/auditor/d/monthly)](https://packagist.org/packages/tejadong/auditor)
+[![Daily Downloads](https://poser.pugx.org/tejadong/auditor/d/daily)](https://packagist.org/packages/tejadong/auditor)
 
 The purpose of `auditor` is to provide an easy and standardized way to collect audit logs.
 
@@ -48,17 +48,17 @@ Basically you can track any change of any entity from audit logs.
 
 
 ## Official Documentation
-`auditor` official documentation can be found [here](https://damienharper.github.io/auditor-docs/).
+`auditor` official documentation can be found [here](https://tejadong.github.io/auditor-docs/).
 
 
 ## Version Information
 | Version | Status                                         | Requirements               | Badges                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |:--------|:-----------------------------------------------|:---------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 3.x     | Active development :rocket: (Not yet released) | PHP >= 8.0, Symfony >= 5.4 | [![auditor 3.x CI](https://github.com/DamienHarper/auditor/actions/workflows/ci-3.x.yml/badge.svg)](https://github.com/DamienHarper/auditor/actions/workflows/ci-3.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DamienHarper/auditor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/DamienHarper/auditor/?branch=master) <br/>[![codecov](https://codecov.io/gh/DamienHarper/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DamienHarper/auditor/branch/master) |
-| 2.x     | Active support                                 | PHP >= 7.4, Symfony >= 4.4 | [![auditor 2.x CI](https://github.com/DamienHarper/auditor/actions/workflows/ci-2.x.yml/badge.svg)](https://github.com/DamienHarper/auditor/actions/workflows/ci-2.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DamienHarper/auditor/badges/quality-score.png?b=2.x)](https://scrutinizer-ci.com/g/DamienHarper/auditor/?branch=2.x) <br/>[![codecov](https://codecov.io/gh/DamienHarper/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DamienHarper/auditor/branch/2.x)          |
-| 1.x     | EOL                                            | PHP >= 7.2, Symfony >= 3.4 | [![auditor 1.x CI](https://github.com/DamienHarper/auditor/actions/workflows/ci-1.x.yml/badge.svg)](https://github.com/DamienHarper/auditor/actions/workflows/ci-1.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DamienHarper/auditor/badges/quality-score.png?b=1.x)](https://scrutinizer-ci.com/g/DamienHarper/auditor/?branch=1.x) <br/>[![codecov](https://codecov.io/gh/DamienHarper/auditor/branch/1.x/graph/badge.svg)](https://app.codecov.io/gh/DamienHarper/auditor/branch/1.x)             |
+| 3.x     | Active development :rocket: (Not yet released) | PHP >= 8.0, Symfony >= 5.4 | [![auditor 3.x CI](https://github.com/tejadong/auditor/actions/workflows/ci-3.x.yml/badge.svg)](https://github.com/tejadong/auditor/actions/workflows/ci-3.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tejadong/auditor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tejadong/auditor/?branch=master) <br/>[![codecov](https://codecov.io/gh/tejadong/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/tejadong/auditor/branch/master) |
+| 2.x     | Active support                                 | PHP >= 7.4, Symfony >= 4.4 | [![auditor 2.x CI](https://github.com/tejadong/auditor/actions/workflows/ci-2.x.yml/badge.svg)](https://github.com/tejadong/auditor/actions/workflows/ci-2.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tejadong/auditor/badges/quality-score.png?b=2.x)](https://scrutinizer-ci.com/g/tejadong/auditor/?branch=2.x) <br/>[![codecov](https://codecov.io/gh/tejadong/auditor/branch/master/graph/badge.svg)](https://app.codecov.io/gh/tejadong/auditor/branch/2.x)          |
+| 1.x     | EOL                                            | PHP >= 7.2, Symfony >= 3.4 | [![auditor 1.x CI](https://github.com/tejadong/auditor/actions/workflows/ci-1.x.yml/badge.svg)](https://github.com/tejadong/auditor/actions/workflows/ci-1.x.yml) <br/>[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tejadong/auditor/badges/quality-score.png?b=1.x)](https://scrutinizer-ci.com/g/tejadong/auditor/?branch=1.x) <br/>[![codecov](https://codecov.io/gh/tejadong/auditor/branch/1.x/graph/badge.svg)](https://app.codecov.io/gh/tejadong/auditor/branch/1.x)             |
 
-Changelog is available [here](https://damienharper.github.io/auditor-docs/docs/auditor/release-notes.html)
+Changelog is available [here](https://tejadong.github.io/auditor-docs/docs/auditor/release-notes.html)
 
 
 ## Contributing
@@ -70,7 +70,7 @@ To do so, follow instructions in this dedicated [README](tests/README.md)
 
 
 ## Credits
-- Thanks to [all contributors](https://github.com/DamienHarper/auditor/graphs/contributors)
+- Thanks to [all contributors](https://github.com/tejadong/auditor/graphs/contributors)
 - This library initially took some inspiration from [data-dog/audit-bundle](https://github.com/DATA-DOG/DataDogAuditBundle.git) and 
 [simplethings/entity-audit-bundle](https://github.com/simplethings/EntityAuditBundle.git)
 - Special thanks to [JetBrains](https://www.jetbrains.com/?from=auditor) for their *Licenses for Open Source Development*

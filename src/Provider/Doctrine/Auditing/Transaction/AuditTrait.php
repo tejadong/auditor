@@ -45,7 +45,7 @@ trait AuditTrait
         /**
          * Primary key is not part of fieldMapping.
          *
-         * @see https://github.com/DamienHarper/auditor-bundle/issues/40
+         * @see https://github.com/tejadong/auditor-bundle/issues/40
          * @see https://www.doctrine-project.org/projects/doctrine-orm/en/latest/tutorials/composite-primary-keys.html#identity-through-foreign-entities
          * We try to get it from associationMapping (will throw a MappingException if not available)
          */

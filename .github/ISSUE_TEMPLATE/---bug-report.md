@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!--
-- Please do not report an issue for a version of `auditor` that is no longer supported. Currently supported versions are listed here: https://github.com/DamienHarper/auditor#version-information
+- Please do not report an issue for a version of `auditor` that is no longer supported. Currently supported versions are listed here: https://github.com/tejadong/auditor#version-information
 - Please fill in this template according to your issue.
 - Please keep the table shown below at the top of your issue.
 - You can retrieve `auditor` version by running `composer info | grep "auditor"`.

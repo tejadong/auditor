@@ -65,6 +65,10 @@ class Reader
             $query->addFilter(new SimpleFilter(Query::OBJECT_ID, $config['object_id']));
         }
 
+        if (null !== $config['read']) {
+            $query->addFilter(new SimpleFilter(Query::READ, $config['read']));
+        }
+
         if (null !== $config['transaction_hash']) {
             $query->addFilter(new SimpleFilter(Query::TRANSACTION_HASH, $config['transaction_hash']));
         }
@@ -94,6 +98,7 @@ class Reader
             ->setDefaults([
                 'type' => null,
                 'object_id' => null,
+                'read' => null,
                 'transaction_hash' => null,
                 'page' => 1,
                 'page_size' => self::PAGE_SIZE,
@@ -101,6 +106,7 @@ class Reader
             ])
             ->setAllowedTypes('type', ['null', 'string', 'array'])
             ->setAllowedTypes('object_id', ['null', 'int', 'string', 'array'])
+            ->setAllowedTypes('read', ['null', 'bool'])
             ->setAllowedTypes('transaction_hash', ['null', 'string', 'array'])
             ->setAllowedTypes('page', ['null', 'int'])
             ->setAllowedTypes('page_size', ['null', 'int'])

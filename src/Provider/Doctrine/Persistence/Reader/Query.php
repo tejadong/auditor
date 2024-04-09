@@ -26,6 +26,7 @@ class Query
     public const CREATED_AT = 'created_at';
     public const TRANSACTION_HASH = 'transaction_hash';
     public const OBJECT_ID = 'object_id';
+    public const READ = 'read';
     public const USER_ID = 'blame_id';
     public const ID = 'id';
     public const DISCRIMINATOR = 'discriminator';

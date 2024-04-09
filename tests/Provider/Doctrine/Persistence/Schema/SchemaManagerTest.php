@@ -148,6 +148,12 @@ final class SchemaManagerTest extends TestCase
                     'length' => 50,
                 ],
             ],
+            'read' => [
+                'type' => Types::BOOLEAN,
+                'options' => [
+                    'notnull' => true
+                ],
+            ],
             'discriminator' => [
                 'type' => Types::STRING,
                 'options' => [
@@ -213,6 +219,10 @@ final class SchemaManagerTest extends TestCase
             'object_id' => [
                 'type' => 'index',
                 'name' => 'object_id_'.$hash.'_idx',
+            ],
+            'read' => [
+                'type' => 'index',
+                'name' => 'read_'.$hash.'_idx',
             ],
             'blame_id' => [
                 'type' => 'index',
