@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 /**
  * @see TransactionProcessorTest
  */
-final class TransactionProcessor implements TransactionProcessorInterface
+class TransactionProcessor implements TransactionProcessorInterface
 {
     use AuditTrait;
 
@@ -77,7 +77,7 @@ final class TransactionProcessor implements TransactionProcessorInterface
         $diff = $this->diff($entityManager, $entity, $ch);
         unset($diff['@source']);
 
-        if ([] === $diff) {
+        if (0 === \count($diff)) {
             return; // if there is no entity diff, do not log it
         }
 
@@ -97,8 +97,10 @@ final class TransactionProcessor implements TransactionProcessorInterface
 
     /**
      * Adds a remove entry to the audit table.
+     *
+     * @param mixed $id
      */
-    private function remove(EntityManagerInterface $entityManager, object $entity, mixed $id, string $transactionHash): void
+    private function remove(EntityManagerInterface $entityManager, object $entity, $id, string $transactionHash): void
     {
         $meta = $entityManager->getClassMetadata(DoctrineHelper::getRealClassName($entity));
         $this->audit([
@@ -210,15 +212,14 @@ final class TransactionProcessor implements TransactionProcessorInterface
         $schema = $data['schema'] ? $data['schema'].'.' : '';
         $auditTable = $schema.$configuration->getTablePrefix().$data['table'].$configuration->getTableSuffix();
         $dt = new DateTimeImmutable('now', new DateTimeZone($this->provider->getAuditor()->getConfiguration()->getTimezone()));
-        $diff = $data['diff'];
-        $convertCharEncoding = (\is_string($diff) || \is_array($diff));
-        $diff = $convertCharEncoding ? mb_convert_encoding($diff, 'UTF-8', 'UTF-8') : $diff;
+        $diff = \is_string($data['diff']) ? mb_convert_encoding($data['diff'], 'UTF-8', 'UTF-8') : $data['diff'];
 
         $payload = [
             'entity' => $data['entity'],
             'table' => $auditTable,
             'type' => $data['action'],
             'object_id' => (string) $data['id'],
+            'read' => (bool) $data['read'],
             'discriminator' => $data['discriminator'],
             'transaction_hash' => (string) $data['transaction_hash'],
             'diffs' => json_encode($diff, JSON_THROW_ON_ERROR),

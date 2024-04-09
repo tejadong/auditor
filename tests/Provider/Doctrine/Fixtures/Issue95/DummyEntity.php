@@ -6,22 +6,38 @@ namespace DH\Auditor\Tests\Provider\Doctrine\Fixtures\Issue95;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'dummy_entity')]
+/**
+ * @ORM\Entity
+ *
+ * @ORM\Table(name="dummy_entity")
+ */
+#[ORM\Entity, ORM\Table(name: 'dummy_entity')]
 class DummyEntity implements Stringable
 {
-    #[ORM\Column(type: Types::STRING, length: 50)]
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    #[ORM\Column(type: 'string', length: 50)]
     protected string $label;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ORM\Column(type: Types::INTEGER)]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @ORM\Column(type="integer")
+     */
+    #[ORM\Id, ORM\GeneratedValue(strategy: 'IDENTITY'), ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    /**
+     * @var Collection<array-key, RelatedDummyEntity>
+     *
+     * @ORM\OneToMany(targetEntity="RelatedDummyEntity", mappedBy="parent")
+     */
     #[ORM\OneToMany(targetEntity: 'RelatedDummyEntity', mappedBy: 'parent')]
     private Collection $children;
 
@@ -31,7 +47,7 @@ class DummyEntity implements Stringable
         $this->children = new ArrayCollection();
     }
 
-    public function __toString(): string
+    public function __toString()
     {
         return $this->label;
     }
@@ -41,6 +57,9 @@ class DummyEntity implements Stringable
         return $this->id;
     }
 
+    /**
+     * Get the value of name.
+     */
     public function getLabel(): string
     {
         return $this->label;

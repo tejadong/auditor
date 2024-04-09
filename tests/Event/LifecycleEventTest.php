@@ -8,46 +8,44 @@ use DH\Auditor\Event\LifecycleEvent;
 use DH\Auditor\EventSubscriber\AuditEventSubscriber;
 use DH\Auditor\Exception\InvalidArgumentException;
 use DH\Auditor\Tests\Traits\AuditorTrait;
-use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
+ * @small
  */
-#[Small]
 final class LifecycleEventTest extends TestCase
 {
     use AuditorTrait;
 
-    /**
-     * @var array<string, class-string<\DH\Auditor\EventSubscriber\AuditEventSubscriber>|string>
-     */
-    private const PAYLOAD = [
-        'entity' => AuditEventSubscriber::class,
-        'table' => '',
-        'type' => '',
-        'object_id' => '',
-        'discriminator' => '',
-        'transaction_hash' => '',
-        'diffs' => '',
-        'blame_id' => '',
-        'blame_user' => '',
-        'blame_user_fqdn' => '',
-        'blame_user_firewall' => '',
-        'ip' => '',
-        'created_at' => '',
-    ];
-
     public function testLifecycleEvent(): void
     {
-        $event = new LifecycleEvent(self::PAYLOAD);
-        self::assertSame(self::PAYLOAD, $event->getPayload());
+        $payload = [
+            'entity' => AuditEventSubscriber::class,
+            'table' => '',
+            'type' => '',
+            'object_id' => '',
+            'read' => '',
+            'discriminator' => '',
+            'transaction_hash' => '',
+            'diffs' => '',
+            'blame_id' => '',
+            'blame_user' => '',
+            'blame_user_fqdn' => '',
+            'blame_user_firewall' => '',
+            'ip' => '',
+            'created_at' => '',
+        ];
+
+        $event = new LifecycleEvent($payload);
+        self::assertSame($payload, $event->getPayload());
     }
 
     public function testLifecycleEventWithInvalidPayload(): void
     {
         self::expectException(InvalidArgumentException::class);
-        new LifecycleEvent(['invalid payload']);
+        $event = new LifecycleEvent(['invalid payload']);
     }
 
     public function testSetValidPayload(): void
@@ -57,6 +55,7 @@ final class LifecycleEventTest extends TestCase
             'table' => '',
             'type' => '',
             'object_id' => '',
+            'read' => '',
             'discriminator' => '',
             'transaction_hash' => '',
             'diffs' => '',
@@ -82,6 +81,7 @@ final class LifecycleEventTest extends TestCase
             'table' => '',
             'type' => '',
             'object_id' => '',
+            'read' => '',
             'discriminator' => '',
             'transaction_hash' => '',
             'diffs' => '',

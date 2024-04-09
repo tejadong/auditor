@@ -20,18 +20,20 @@ trait AuditTrait
     /**
      * Returns the primary key value of an entity.
      *
+     * @return mixed
+     *
      * @throws MappingException
      * @throws Exception
      * @throws ORMMappingException
      */
-    private function id(EntityManagerInterface $entityManager, object $entity): mixed
+    private function id(EntityManagerInterface $entityManager, object $entity)
     {
         $meta = $entityManager->getClassMetadata(DoctrineHelper::getRealClassName($entity));
 
         try {
             $pk = $meta->getSingleIdentifierFieldName();
-        } catch (ORMMappingException) {
-            throw new MappingException(sprintf('Composite primary keys are not supported (%s).', $entity::class));
+        } catch (ORMMappingException $e) {
+            throw new MappingException(sprintf('Composite primary keys are not supported (%s).', \get_class($entity)));
         }
 
         if (isset($meta->fieldMappings[$pk])) {
@@ -43,7 +45,7 @@ trait AuditTrait
         /**
          * Primary key is not part of fieldMapping.
          *
-         * @see https://github.com/DamienHarper/auditor-bundle/issues/40
+         * @see https://github.com/tejadong/auditor-bundle/issues/40
          * @see https://www.doctrine-project.org/projects/doctrine-orm/en/latest/tutorials/composite-primary-keys.html#identity-through-foreign-entities
          * We try to get it from associationMapping (will throw a MappingException if not available)
          */
@@ -63,10 +65,14 @@ trait AuditTrait
     /**
      * Type converts the input value and returns it.
      *
+     * @param mixed $value
+     *
+     * @return mixed
+     *
      * @throws Exception
      * @throws ConversionException
      */
-    private function value(EntityManagerInterface $entityManager, Type $type, mixed $value): mixed
+    private function value(EntityManagerInterface $entityManager, Type $type, $value)
     {
         if (null === $value) {
             return null;
@@ -78,7 +84,7 @@ trait AuditTrait
 
         $platform = $entityManager->getConnection()->getDatabasePlatform();
 
-        switch (array_search($type::class, Type::getTypesMap(), true)) {
+        switch ($type->getName()) {
             case DoctrineHelper::getDoctrineType('BIGINT'):
                 $convertedValue = (string) $value;  // @phpstan-ignore-line
 
@@ -202,7 +208,7 @@ trait AuditTrait
         if (method_exists($entity, '__toString')) {
             try {
                 $label = (string) $entity;
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
                 $label = DoctrineHelper::getRealClassName($entity).(null === $pkValue ? '' : '#'.$pkValue);
             }
         } else {
@@ -223,8 +229,6 @@ trait AuditTrait
 
     /**
      * Blames an audit operation.
-     *
-     * @return array{client_ip: null|string, user_firewall: null|string, user_fqdn: null|string, user_id: null|string, username: null|string}
      */
     private function blame(): array
     {

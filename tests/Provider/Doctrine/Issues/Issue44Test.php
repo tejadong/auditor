@@ -8,13 +8,13 @@ use DH\Auditor\Model\Transaction;
 use DH\Auditor\Tests\Provider\Doctrine\Fixtures\Entity\Standard\DummyEntity;
 use DH\Auditor\Tests\Provider\Doctrine\Traits\ReaderTrait;
 use DH\Auditor\Tests\Provider\Doctrine\Traits\Schema\SchemaSetupTrait;
-use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
+ * @small
  */
-#[Small]
 final class Issue44Test extends TestCase
 {
     use ReaderTrait;
@@ -26,13 +26,16 @@ final class Issue44Test extends TestCase
 
         $em = $this->provider->getStorageServiceForEntity(DummyEntity::class)->getEntityManager();
         $em->beginTransaction();
-
         $entity = new DummyEntity();
         $entity->setLabel('entity1');
-
         $em->persist($entity);
         $em->flush();
+        //        $em->flush();
         $em->commit();
+        //        for ($n = 1; $n <= 10; ++$n) {
+        //            $em->beginTransaction();
+        //            $em->commit();
+        //        }
 
         $audits = $reader->createQuery(DummyEntity::class)->execute();
         self::assertCount(1, $audits, 'results count ok.');

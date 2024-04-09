@@ -6,4 +6,4 @@ namespace DH\Auditor\Provider\Doctrine\Service;
 
 use DH\Auditor\Provider\Service\AuditingServiceInterface;
 
-final class AuditingService extends DoctrineService implements AuditingServiceInterface {}
+class AuditingService extends DoctrineService implements AuditingServiceInterface {}

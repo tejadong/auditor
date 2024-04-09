@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace DH\Auditor\Provider\Doctrine\Persistence\Reader;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use DH\Auditor\Exception\InvalidArgumentException;
 use DH\Auditor\Model\Entry;
 use DH\Auditor\Provider\Doctrine\Persistence\Helper\SchemaHelper;
@@ -22,41 +20,15 @@ use Exception;
 /**
  * @see QueryTest
  */
-final class Query
+class Query
 {
-    /**
-     * @var string
-     */
     public const TYPE = 'type';
-
-    /**
-     * @var string
-     */
     public const CREATED_AT = 'created_at';
-
-    /**
-     * @var string
-     */
     public const TRANSACTION_HASH = 'transaction_hash';
-
-    /**
-     * @var string
-     */
     public const OBJECT_ID = 'object_id';
-
-    /**
-     * @var string
-     */
+    public const READ = 'read';
     public const USER_ID = 'blame_id';
-
-    /**
-     * @var string
-     */
     public const ID = 'id';
-
-    /**
-     * @var string
-     */
     public const DISCRIMINATOR = 'discriminator';
 
     private array $filters = [];
@@ -71,32 +43,30 @@ final class Query
 
     private int $limit = 0;
 
-    private DateTimeZone $timezone;
-
-    public function __construct(string $table, Connection $connection, string $timezone)
+    public function __construct(string $table, Connection $connection)
     {
         $this->connection = $connection;
         $this->table = $table;
-        $this->timezone = new DateTimeZone($timezone);
 
         foreach ($this->getSupportedFilters() as $filterType) {
             $this->filters[$filterType] = [];
         }
     }
 
-    /**
-     * @return array<Entry>
-     */
     public function execute(): array
     {
         $queryBuilder = $this->buildQueryBuilder();
-        $statement = $queryBuilder->executeQuery();
+        if (method_exists($queryBuilder, 'executeQuery')) {
+            // doctrine/dbal v3.x
+            $statement = $queryBuilder->executeQuery();
+        } else {
+            // doctrine/dbal v2.13.x
+            $statement = $queryBuilder->execute();
+        }
 
         $result = [];
         \assert($statement instanceof Result);
         foreach ($statement->fetchAllAssociative() as $row) {
-            \assert(\is_string($row['created_at']));
-            $row['created_at'] = new DateTimeImmutable($row['created_at'], $this->timezone);
             $result[] = Entry::fromArray($row);
         }
 
@@ -109,19 +79,31 @@ final class Query
 
         try {
             $queryBuilder
-                ->add('select', 'COUNT(id)', false)
-                ->resetOrderBy()
+                ->resetQueryPart('select')
+                ->resetQueryPart('orderBy')
                 ->setMaxResults(null)
                 ->setFirstResult(0)
+                ->select('COUNT(id)')
             ;
 
-            /** @var false|int $result */
-            $result = $queryBuilder->executeQuery()->fetchOne();
-        } catch (Exception) {
+            if (method_exists($queryBuilder, 'executeQuery')) {
+                // doctrine/dbal v3.x
+                $result = $queryBuilder
+                    ->executeQuery()
+                    ->fetchOne()
+                ;
+            } else {
+                // doctrine/dbal v2.13.x
+                $result = $queryBuilder // @phpstan-ignore-line
+                    ->execute()
+                    ->fetchColumn(0)
+                ;
+            }
+        } catch (Exception $e) {
             $result = false;
         }
 
-        return (int) $result;
+        return false === $result ? 0 : (int) $result;
     }
 
     public function addFilter(FilterInterface $filter): self
@@ -157,7 +139,6 @@ final class Query
         if (0 > $limit) {
             throw new InvalidArgumentException('Limit cannot be negative.');
         }
-
         if (0 > $offset) {
             throw new InvalidArgumentException('Offset cannot be negative.');
         }
@@ -183,9 +164,6 @@ final class Query
         return $this->orderBy;
     }
 
-    /**
-     * @return array<int>
-     */
     public function getLimit(): array
     {
         return [$this->limit, $this->offset];
@@ -214,11 +192,11 @@ final class Query
         $grouped = [];
 
         foreach ($filters as $filter) {
-            if (!isset($grouped[$filter::class])) {
-                $grouped[$filter::class] = [];
+            $class = \get_class($filter);
+            if (!isset($grouped[$class])) {
+                $grouped[$class] = [];
             }
-
-            $grouped[$filter::class][] = $filter;
+            $grouped[$class][] = $filter;
         }
 
         return $grouped;
@@ -226,10 +204,6 @@ final class Query
 
     private function mergeSimpleFilters(array $filters): SimpleFilter
     {
-        if ([] === $filters) {
-            throw new InvalidArgumentException('$filters cannot be empty.');
-        }
-
         $merged = [];
         $name = null;
 
@@ -250,7 +224,7 @@ final class Query
 
     private function buildWhere(QueryBuilder $queryBuilder): QueryBuilder
     {
-        foreach ($this->filters as $rawFilters) {
+        foreach ($this->filters as $name => $rawFilters) {
             if (0 === (is_countable($rawFilters) ? \count($rawFilters) : 0)) {
                 continue;
             }
@@ -277,8 +251,7 @@ final class Query
 
                     foreach ($data['params'] as $name => $value) {
                         if (\is_array($value)) {
-                            // TODO: replace Connection::PARAM_STR_ARRAY with ArrayParameterType::STRING when dropping support of doctrine/dbal < 3.6
-                            $queryBuilder->setParameter($name, $value, Connection::PARAM_STR_ARRAY); // @phpstan-ignore-line
+                            $queryBuilder->setParameter($name, $value, Connection::PARAM_STR_ARRAY);
                         } else {
                             $queryBuilder->setParameter($name, $value);
                         }
@@ -304,7 +277,6 @@ final class Query
         if (0 < $this->limit) {
             $queryBuilder->setMaxResults($this->limit);
         }
-
         if (0 < $this->offset) {
             $queryBuilder->setFirstResult($this->offset);
         }

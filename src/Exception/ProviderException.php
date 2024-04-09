@@ -6,4 +6,4 @@ namespace DH\Auditor\Exception;
 
 use Exception;
 
-final class ProviderException extends Exception {}
+class ProviderException extends Exception {}

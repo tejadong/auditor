@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @see ConfigurationTest
  */
-final class Configuration implements ConfigurationInterface
+class Configuration implements ConfigurationInterface
 {
     private ?DoctrineProvider $provider = null;
 
@@ -22,10 +22,7 @@ final class Configuration implements ConfigurationInterface
 
     private string $tableSuffix;
 
-    /**
-     * @var array<string>
-     */
-    private array $ignoredColumns = [];
+    private array $ignoredColumns;
 
     private ?array $entities = null;
 
@@ -38,7 +35,7 @@ final class Configuration implements ConfigurationInterface
     private bool $initialized = false;
 
     /**
-     * @var null|callable
+     * @var callable
      */
     private $storageMapper;
 
@@ -65,6 +62,31 @@ final class Configuration implements ConfigurationInterface
         $this->auditingServices = $config['auditing_services'];
         $this->isViewerEnabled = $config['viewer'];
         $this->storageMapper = $config['storage_mapper'];
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        // https://symfony.com/doc/current/components/options_resolver.html
+        $resolver
+            ->setDefaults([
+                'table_prefix' => '',
+                'table_suffix' => '_audit',
+                'ignored_columns' => [],
+                'entities' => [],
+                'storage_services' => [],
+                'auditing_services' => [],
+                'viewer' => true,
+                'storage_mapper' => null,
+            ])
+            ->setAllowedTypes('table_prefix', 'string')
+            ->setAllowedTypes('table_suffix', 'string')
+            ->setAllowedTypes('ignored_columns', 'array')
+            ->setAllowedTypes('entities', 'array')
+            ->setAllowedTypes('storage_services', 'array')
+            ->setAllowedTypes('auditing_services', 'array')
+            ->setAllowedTypes('viewer', 'bool')
+            ->setAllowedTypes('storage_mapper', ['null', 'string', 'callable'])
+        ;
     }
 
     /**
@@ -149,11 +171,10 @@ final class Configuration implements ConfigurationInterface
         if ($this->initialized && null !== $this->entities) {
             return $this->entities;
         }
-
-        if ($this->provider instanceof DoctrineProvider) {
+        if (null !== $this->provider) {
             $schemaManager = new SchemaManager($this->provider);
 
-            /** @var array<AuditingService> $auditingServices */
+            /** @var AuditingService[] $auditingServices */
             $auditingServices = $this->provider->getAuditingServices();
             foreach ($auditingServices as $auditingService) {
                 $entityManager = $auditingService->getEntityManager();
@@ -166,7 +187,7 @@ final class Configuration implements ConfigurationInterface
                 }
 
                 \assert(null !== $this->entities);
-                foreach (array_keys($this->entities) as $entity) {
+                foreach ($this->entities as $entity => $config) {
                     $meta = $entityManager->getClassMetadata(DoctrineHelper::getRealClassName($entity));
                     $entityTableName = $meta->getTableName();
                     $namespaceName = $meta->getSchemaName() ?? '';
@@ -185,7 +206,6 @@ final class Configuration implements ConfigurationInterface
                     );
                 }
             }
-
             $this->initialized = true;
         }
 
@@ -234,7 +254,7 @@ final class Configuration implements ConfigurationInterface
     /**
      * @return null|callable|string
      */
-    public function getStorageMapper(): mixed
+    public function getStorageMapper()
     {
         return $this->storageMapper;
     }
@@ -248,30 +268,5 @@ final class Configuration implements ConfigurationInterface
     {
         $this->provider = $provider;
         $this->initialized = false;
-    }
-
-    private function configureOptions(OptionsResolver $resolver): void
-    {
-        // https://symfony.com/doc/current/components/options_resolver.html
-        $resolver
-            ->setDefaults([
-                'table_prefix' => '',
-                'table_suffix' => '_audit',
-                'ignored_columns' => [],
-                'entities' => [],
-                'storage_services' => [],
-                'auditing_services' => [],
-                'viewer' => true,
-                'storage_mapper' => null,
-            ])
-            ->setAllowedTypes('table_prefix', 'string')
-            ->setAllowedTypes('table_suffix', 'string')
-            ->setAllowedTypes('ignored_columns', 'array')
-            ->setAllowedTypes('entities', 'array')
-            ->setAllowedTypes('storage_services', 'array')
-            ->setAllowedTypes('auditing_services', 'array')
-            ->setAllowedTypes('viewer', 'bool')
-            ->setAllowedTypes('storage_mapper', ['null', 'string', 'callable'])
-        ;
     }
 }

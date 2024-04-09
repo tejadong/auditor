@@ -24,101 +24,22 @@ use DH\Auditor\Tests\Provider\Doctrine\Fixtures\Entity\Standard\Blog\Post;
 use DH\Auditor\Tests\Provider\Doctrine\Fixtures\Entity\Standard\Blog\Tag;
 use DH\Auditor\Tests\Provider\Doctrine\Traits\Schema\DefaultSchemaSetupTrait;
 use DH\Auditor\Tests\Traits\ReflectionTrait;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
+ * @small
  */
-#[Small]
 final class SchemaManagerTest extends TestCase
 {
     use DefaultSchemaSetupTrait;
     use ReflectionTrait;
-
-    // new/alternate structure
-    /**
-     * @var array<string, array<string, array<string, int|true>|array<string, null|bool>|array<string, null|false|int>|array<string, null|true>|array<string, true>|string>>
-     */
-    private const ALTERNATE_COLUMNS = [
-        'id' => [
-            'type' => Types::INTEGER,
-            'options' => [
-                'autoincrement' => true,
-                'unsigned' => true,
-            ],
-        ],
-        'type' => [
-            'type' => Types::STRING,
-            'options' => [
-                'notnull' => true,
-                'length' => 10,
-            ],
-        ],
-        'object_id' => [
-            'type' => Types::STRING,
-            'options' => [
-                'notnull' => true,
-                'length' => 50,
-            ],
-        ],
-        'discriminator' => [
-            'type' => Types::STRING,
-            'options' => [
-                'default' => null,
-                'notnull' => false,
-            ],
-        ],
-        'diffs' => [
-            'type' => Types::JSON,
-            'options' => [
-                'default' => null,
-                'notnull' => false,
-            ],
-        ],
-        'blame_id' => [
-            'type' => Types::STRING,
-            'options' => [
-                'default' => null,
-                'notnull' => false,
-                'unsigned' => true,
-            ],
-        ],
-        'blame_user' => [
-            'type' => Types::STRING,
-            'options' => [
-                'default' => null,
-                'notnull' => false,
-                'length' => 100,
-            ],
-        ],
-        'created_at' => [
-            'type' => Types::DATETIME_IMMUTABLE,
-            'options' => [
-                'notnull' => true,
-            ],
-        ],
-        'locale' => [
-            'type' => Types::STRING,
-            'options' => [
-                'default' => null,
-                'notnull' => false,
-                'length' => 5,
-            ],
-        ],
-        'version' => [
-            'type' => Types::INTEGER,
-            'options' => [
-                'default' => null,
-                'notnull' => true,
-            ],
-        ],
-    ];
 
     public function testStorageServicesSetup(): void
     {
@@ -159,7 +80,7 @@ final class SchemaManagerTest extends TestCase
         // create audit table for Author entity
         $this->doConfigureEntities();
         $toSchema = $updater->createAuditTable(Author::class);
-        $this->migrate($fromSchema, $toSchema, $entityManager);
+        $this->migrate($fromSchema, $toSchema, $entityManager, $storageConnection->getDatabasePlatform());
 
         // check audit table has been created
         $authorAuditTable = $this->getTable($schemaManager->listTables(), 'author_audit');
@@ -167,7 +88,7 @@ final class SchemaManagerTest extends TestCase
 
         // check expected columns
         $expected = SchemaHelper::getAuditTableColumns();
-        foreach (array_keys($expected) as $name) {
+        foreach ($expected as $name => $options) {
             self::assertTrue($authorAuditTable->hasColumn($name), 'audit table has a column named "'.$name.'".');
         }
 
@@ -182,7 +103,9 @@ final class SchemaManagerTest extends TestCase
         }
     }
 
-    #[Depends('testCreateAuditTable')]
+    /**
+     * @depends testCreateAuditTable
+     */
     public function testUpdateAuditTable(): void
     {
         $updater = new SchemaManager($this->provider);
@@ -200,7 +123,89 @@ final class SchemaManagerTest extends TestCase
         // create audit table for Author entity
         $this->doConfigureEntities();
         $toSchema = $updater->createAuditTable(Author::class);
-        $this->migrate($fromSchema, $toSchema, $entityManager);
+        $this->migrate($fromSchema, $toSchema, $entityManager, $storageConnection->getDatabasePlatform());
+
+        // new/alternate structure
+        $alternateColumns = [
+            'id' => [
+                'type' => Types::INTEGER,
+                'options' => [
+                    'autoincrement' => true,
+                    'unsigned' => true,
+                ],
+            ],
+            'type' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length' => 10,
+                ],
+            ],
+            'object_id' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length' => 50,
+                ],
+            ],
+            'read' => [
+                'type' => Types::BOOLEAN,
+                'options' => [
+                    'notnull' => true
+                ],
+            ],
+            'discriminator' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'default' => null,
+                    'notnull' => false,
+                ],
+            ],
+            'diffs' => [
+                'type' => Types::JSON,
+                'options' => [
+                    'default' => null,
+                    'notnull' => false,
+                ],
+            ],
+            'blame_id' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'default' => null,
+                    'notnull' => false,
+                    'unsigned' => true,
+                ],
+            ],
+            'blame_user' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'default' => null,
+                    'notnull' => false,
+                    'length' => 100,
+                ],
+            ],
+            'created_at' => [
+                'type' => Types::DATETIME_IMMUTABLE,
+                'options' => [
+                    'notnull' => true,
+                ],
+            ],
+            'locale' => [
+                'type' => Types::STRING,
+                'options' => [
+                    'default' => null,
+                    'notnull' => false,
+                    'length' => 5,
+                ],
+            ],
+            'version' => [
+                'type' => Types::INTEGER,
+                'options' => [
+                    'default' => null,
+                    'notnull' => true,
+                ],
+            ],
+        ];
 
         $hash = md5('author_audit');
         $alternateIndices = [
@@ -214,6 +219,10 @@ final class SchemaManagerTest extends TestCase
             'object_id' => [
                 'type' => 'index',
                 'name' => 'object_id_'.$hash.'_idx',
+            ],
+            'read' => [
+                'type' => 'index',
+                'name' => 'read_'.$hash.'_idx',
             ],
             'blame_id' => [
                 'type' => 'index',
@@ -232,17 +241,17 @@ final class SchemaManagerTest extends TestCase
         $columns = $schemaManager->listTableColumns($authorAuditTable->getName());
 
         $reflectedMethod = $this->reflectMethod($updater, 'processColumns');
-        $reflectedMethod->invokeArgs($updater, [$table, $columns, self::ALTERNATE_COLUMNS, $entityManager->getConnection()]);
+        $reflectedMethod->invokeArgs($updater, [$table, $columns, $alternateColumns, $entityManager->getConnection()]);
 
         $reflectedMethod = $this->reflectMethod($updater, 'processIndices');
         $reflectedMethod->invokeArgs($updater, [$table, $alternateIndices, $entityManager->getConnection()]);
 
-        $this->migrate($fromSchema, $toSchema, $entityManager);
+        $this->migrate($fromSchema, $toSchema, $entityManager, $storageConnection->getDatabasePlatform());
 
         $authorAuditTable = $this->getTable($schemaManager->listTables(), 'author_audit');
 
         // check expected alternate columns
-        foreach (array_keys(self::ALTERNATE_COLUMNS) as $name) {
+        foreach ($alternateColumns as $name => $options) {
             self::assertTrue($authorAuditTable->hasColumn($name), 'audit table has a column named "'.$name.'".');
         }
 
@@ -259,12 +268,12 @@ final class SchemaManagerTest extends TestCase
         $fromSchema = DoctrineHelper::introspectSchema($schemaManager);
 
         $toSchema = $updater->updateAuditTable(Author::class);
-        $this->migrate($fromSchema, $toSchema, $entityManager);
+        $this->migrate($fromSchema, $toSchema, $entityManager, $storageConnection->getDatabasePlatform());
 
         $authorAuditTable = $this->getTable($schemaManager->listTables(), 'author_audit');
 
         // check expected columns
-        foreach (array_keys(SchemaHelper::getAuditTableColumns()) as $name) {
+        foreach (SchemaHelper::getAuditTableColumns() as $name => $options) {
             self::assertTrue($authorAuditTable->hasColumn($name), 'audit table has a column named "'.$name.'".');
         }
 
@@ -278,12 +287,12 @@ final class SchemaManagerTest extends TestCase
         }
     }
 
-    private function migrate(Schema $fromSchema, Schema $toSchema, EntityManagerInterface $entityManager): void
+    private function migrate(Schema $fromSchema, Schema $toSchema, EntityManagerInterface $entityManager, AbstractPlatform $platform): void
     {
         $sqls = DoctrineHelper::getMigrateToSql($entityManager->getConnection(), $fromSchema, $toSchema);
         foreach ($sqls as $sql) {
             $statement = $entityManager->getConnection()->prepare($sql);
-            $statement->executeStatement();
+            DoctrineHelper::executeStatement($statement);
         }
     }
 

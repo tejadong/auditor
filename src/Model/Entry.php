@@ -4,37 +4,41 @@ declare(strict_types=1);
 
 namespace DH\Auditor\Model;
 
-use DateTimeImmutable;
 use DH\Auditor\Tests\Model\EntryTest;
 
 /**
  * @see EntryTest
  */
-final class Entry
+class Entry
 {
-    private int $id;
+    protected int $id;
 
-    private string $type;
+    protected string $type;
 
-    private string $object_id;
+    protected string $object_id;
 
-    private ?string $discriminator = null;
+    protected bool $read;
 
-    private ?string $transaction_hash = null;
+    protected ?string $discriminator;
 
-    private string $diffs;
+    protected ?string $transaction_hash;
 
-    private null|int|string $blame_id = null;
+    protected string $diffs;
 
-    private ?string $blame_user = null;
+    /**
+     * @var null|int|string
+     */
+    protected $blame_id;
 
-    private ?string $blame_user_fqdn = null;
+    protected ?string $blame_user = null;
 
-    private ?string $blame_user_firewall = null;
+    protected ?string $blame_user_fqdn = null;
 
-    private ?string $ip = null;
+    protected ?string $blame_user_firewall = null;
 
-    private DateTimeImmutable $created_at;
+    protected ?string $ip = null;
+
+    protected string $created_at;
 
     /**
      * Get the value of id.
@@ -61,6 +65,14 @@ final class Entry
     }
 
     /**
+     * Get the value of read.
+     */
+    public function getRead(): bool
+    {
+        return $this->read;
+    }
+
+    /**
      * Get the value of discriminator.
      */
     public function getDiscriminator(): ?string
@@ -78,8 +90,10 @@ final class Entry
 
     /**
      * Get the value of blame_id.
+     *
+     * @return null|int|string
      */
-    public function getUserId(): null|int|string
+    public function getUserId()
     {
         return $this->blame_id;
     }
@@ -113,7 +127,7 @@ final class Entry
     /**
      * Get the value of created_at.
      */
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): string
     {
         return $this->created_at;
     }
@@ -121,7 +135,7 @@ final class Entry
     /**
      * Get diff values.
      */
-    public function getDiffs(bool $includeMedadata = false): array
+    public function getDiffs(bool $includeMedadata = false): ?array
     {
         $diffs = $this->sort(json_decode($this->diffs, true, 512, JSON_THROW_ON_ERROR));  // @phpstan-ignore-line
         if (!$includeMedadata) {

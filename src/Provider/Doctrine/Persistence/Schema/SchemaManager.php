@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DH\Auditor\Provider\Doctrine\Persistence\Schema;
 
-use DH\Auditor\Exception\InvalidArgumentException;
 use DH\Auditor\Provider\Doctrine\Configuration;
 use DH\Auditor\Provider\Doctrine\DoctrineProvider;
 use DH\Auditor\Provider\Doctrine\Persistence\Helper\DoctrineHelper;
@@ -21,12 +20,11 @@ use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * @see SchemaManagerTest
  */
-final class SchemaManager
+class SchemaManager
 {
     private DoctrineProvider $provider;
 
@@ -47,7 +45,7 @@ final class SchemaManager
             $connection = $storageServices[$name]->getEntityManager()->getConnection();
             foreach ($queries as $index => $sql) {
                 $statement = $connection->prepare($sql);
-                $statement->executeStatement();
+                DoctrineHelper::executeStatement($statement);
 
                 if (null !== $callback) {
                     $callback([
@@ -67,17 +65,15 @@ final class SchemaManager
     {
         $metadataDriver = $entityManager->getConfiguration()->getMetadataDriverImpl();
         $entities = [];
-        if ($metadataDriver instanceof MappingDriver) {
+        if (null !== $metadataDriver) {
             $entities = $metadataDriver->getAllClassNames();
         }
-
         $audited = [];
         foreach ($entities as $entity) {
             if ($this->provider->isAuditable($entity)) {
                 $audited[$entity] = $entityManager->getClassMetadata($entity)->getTableName();
             }
         }
-
         ksort($audited);
 
         return $audited;
@@ -99,7 +95,6 @@ final class SchemaManager
                 if (!isset($repository[$key])) {
                     $repository[$key] = [];
                 }
-
                 $repository[$key][$entity] = $tableName;
             }
         }
@@ -122,9 +117,8 @@ final class SchemaManager
         $sqls = [];
         foreach ($repository as $name => $classes) {
             $storageConnection = $storageServices[$name]->getEntityManager()->getConnection();
-            $storageSchemaManager = $storageConnection->createSchemaManager();
-
-            $storageSchema = $storageSchemaManager->introspectSchema();
+            $storageSchemaManager = DoctrineHelper::createSchemaManager($storageConnection);
+            $storageSchema = DoctrineHelper::introspectSchema($storageSchemaManager);
             $fromSchema = clone $storageSchema;
 
             $processed = [];
@@ -144,7 +138,6 @@ final class SchemaManager
                     $processed[] = $entityFQCN;
                 }
             }
-
             $sqls[$name] = DoctrineHelper::getMigrateToSql($storageConnection, $fromSchema, $storageSchema);
         }
 
@@ -162,7 +155,7 @@ final class SchemaManager
         $storageService = $this->provider->getStorageServiceForEntity($entity);
         $connection = $storageService->getEntityManager()->getConnection();
 
-        if (!$schema instanceof Schema) {
+        if (null === $schema) {
             $schemaManager = DoctrineHelper::createSchemaManager($connection);
             $schema = DoctrineHelper::introspectSchema($schemaManager);
         }
@@ -190,15 +183,13 @@ final class SchemaManager
             foreach (SchemaHelper::getAuditTableIndices($auditTablename) as $columnName => $struct) {
                 if ('primary' === $struct['type']) {
                     $auditTable->setPrimaryKey([$columnName]);
-                } elseif (isset($struct['name'])) {
+                } else {
                     $auditTable->addIndex(
                         [$columnName],
                         $struct['name'],
                         [],
                         PlatformHelper::isIndexLengthLimited($columnName, $connection) ? ['lengths' => [191]] : []
                     );
-                } else {
-                    throw new InvalidArgumentException(sprintf("Missing key 'name' for column '%s'", $columnName));
                 }
             }
         }
@@ -219,7 +210,7 @@ final class SchemaManager
         $connection = $storageService->getEntityManager()->getConnection();
 
         $schemaManager = DoctrineHelper::createSchemaManager($connection);
-        if (!$schema instanceof Schema) {
+        if (null === $schema) {
             $schema = DoctrineHelper::introspectSchema($schemaManager);
         }
 
@@ -273,7 +264,7 @@ final class SchemaManager
     public function computeAuditTablename(string $entityTableName, Configuration $configuration): ?string
     {
         return preg_replace(
-            '#^([^.]+\.)?(.+)$#',
+            sprintf('#^([^\.]+\.)?(%s)$#', preg_quote($entityTableName, '#')),
             sprintf(
                 '$1%s$2%s',
                 preg_quote($configuration->getTablePrefix(), '#'),
@@ -328,7 +319,6 @@ final class SchemaManager
                 if ($table->hasIndex($options['name'])) {
                     $table->dropIndex($options['name']);
                 }
-
                 $table->addIndex(
                     [$columnName],
                     $options['name'],

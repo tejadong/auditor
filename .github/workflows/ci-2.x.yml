@@ -18,9 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: 2.x
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -78,6 +76,8 @@ jobs:
           - '7.4'
           - '8.0'
           - '8.1'
+          - '8.2'
+          - '8.3'
         symfony:
           - '4.4.*'
           - '5.*'
@@ -92,9 +92,7 @@ jobs:
         run: sudo service mysql stop # Shutdown the Default MySQL, "sudo" is necessary, please not remove it
 
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: 2.x
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -132,7 +130,7 @@ jobs:
         run: composer install --no-progress --ansi --working-dir=tools/phpstan
 
       - name: Run PHPStan
-        run: composer phpstan
+        run: tools/phpstan/vendor/bin/phpstan --ansi analyse src --debug
 
       - name: Run tests
         run: |
@@ -182,6 +180,8 @@ jobs:
         php:
           - '8.0'
           - '8.1'
+          - '8.2'
+          - '8.3'
         symfony:
           - '6.*'
         db:
@@ -195,9 +195,7 @@ jobs:
         run: sudo service mysql stop # Shutdown the Default MySQL, "sudo" is necessary, please not remove it
 
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: 2.x
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

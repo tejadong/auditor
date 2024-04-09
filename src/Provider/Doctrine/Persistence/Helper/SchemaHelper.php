@@ -34,6 +34,12 @@ abstract class SchemaHelper
                     'notnull' => true,
                 ],
             ],
+            'read' => [
+                'type' => DoctrineHelper::getDoctrineType('BOOLEAN'),
+                'options' => [
+                    'notnull' => true,
+                ],
+            ],
             'discriminator' => [
                 'type' => DoctrineHelper::getDoctrineType('STRING'),
                 'options' => [
@@ -121,6 +127,10 @@ abstract class SchemaHelper
             'object_id' => [
                 'type' => 'index',
                 'name' => 'object_id_'.md5($tablename).'_idx',
+            ],
+            'read' => [
+                'type' => 'index',
+                'name' => 'read_'.md5($tablename).'_idx',
             ],
             'discriminator' => [
                 'type' => 'index',

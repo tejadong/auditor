@@ -4,37 +4,51 @@ declare(strict_types=1);
 
 namespace DH\Auditor\Tests\Provider\Doctrine\Fixtures\Issue95;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Stringable;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'related_dummy_entity')]
-class RelatedDummyEntity implements Stringable
+/**
+ * @ORM\Entity
+ *
+ * @ORM\Table(name="related_dummy_entity")
+ */
+#[ORM\Entity, ORM\Table(name: 'related_dummy_entity')]
+class RelatedDummyEntity
 {
-    #[ORM\Column(type: Types::STRING, length: 50)]
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    #[ORM\Column(type: 'string', length: 50)]
     protected string $label;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="DummyEntity", cascade={"persist", "remove"}, inversedBy="children")
+     *
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
+     */
     #[ORM\ManyToOne(targetEntity: 'DummyEntity', cascade: ['persist', 'remove'], inversedBy: 'children')]
-    #[ORM\JoinColumn(name: 'parent_id')]
+    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', nullable: true)]
     protected ?DummyEntity $parent;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ORM\Column(type: Types::INTEGER)]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @ORM\Column(type="integer")
+     */
+    #[ORM\Id, ORM\GeneratedValue(strategy: 'IDENTITY'), ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     public function __construct(?DummyEntity $parent, string $label)
     {
         $this->parent = $parent;
-        if ($parent instanceof DummyEntity) {
+        if (null !== $parent) {
             $parent->addChild($this);
         }
-
         $this->label = $label;
     }
 
-    public function __toString(): string
+    public function __toString()
     {
         return $this->label;
     }
@@ -52,7 +66,7 @@ class RelatedDummyEntity implements Stringable
         return $this->label;
     }
 
-    public function getParent(): ?DummyEntity
+    public function getParent(): DummyEntity
     {
         return $this->parent;
     }
